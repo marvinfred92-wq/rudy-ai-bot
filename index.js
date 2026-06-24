@@ -3,15 +3,37 @@ client.on('messageCreate', async (message) => {
 
     startDeadChatTimer();
 
-    // 1. GLOBAL CHAT RESTRICTION (Keutamaan tertinggi)
+    // ⛔ GLOBAL CHAT RESTRICTION
     if (message.mentions.has(client.user) && message.channel.name !== CHAT_CHANNEL_NAME) {
         if (message.author.id === OWNER_ID) {
-            await message.reply("🫡 **Always ready to serve you anywhere, Boss!**");
+            await message.reply("🫡 **Always ready to serve you, Boss!**");
         } else {
             await message.reply("Stop annoying me here! 🤬 Go to the `#chat-with-lrs-rudy-ai` channel!");
         }
-        return; // Kunci: Berhenti di sini jika sudah balas global
+        return;
     }
+
+    // 1. BOSS MODE LOGIC (Hanya respon jika OWNER MENTION bot)
+    if (message.channel.name === CHAT_CHANNEL_NAME && message.mentions.has(client.user)) {
+        if (message.author.id === OWNER_ID) {
+            const contentLower = message.content.toLowerCase();
+            if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("diam")) {
+                await message.reply("🤐 *Stands perfectly straight, goes completely silent*... Yes, Boss! 🫡");
+            } else {
+                await message.reply(`🫡 **At your service, Boss!** How can I assist my big boss today?`);
+            }
+            return;
+        }
+    }
+
+    // 2. PUBLIC MODE LOGIC (Untuk ahli biasa, TIDAK perlu mention)
+    if (message.channel.name === CHAT_CHANNEL_NAME && message.author.id !== OWNER_ID) {
+        message.channel.sendTyping();
+        const responPuaka = dapatkanResponToxic(message.content);
+        await message.reply(responPuaka);
+    }
+});
+
 
     // 2. BOSS MODE & PUBLIC MODE (Hanya dalam channel khas)
     if (message.channel.name === CHAT_CHANNEL_NAME) {
