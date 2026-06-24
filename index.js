@@ -76,7 +76,7 @@ function startDeadChatTimer() {
                 if (channel) {
                     const isiTopik = topikRoblox[Math.floor(Math.random() * topikRoblox.length)];
                     await channel.send({
-                        content: isiTopik, //  DAH SIAP DIBETULKAN KEPADA 'isiTopik'
+                        content: isiTopik,
                         allowedMentions: { parse: ['everyone', 'roles', 'users'] }
                     });
                 }
@@ -94,6 +94,7 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
+    // 🛑 SEKATAN UTAMA: Jika penulis mesej adalah bot, abai terus supaya tidak melayan diri sendiri!
     if (message.author.bot) return;
 
     startDeadChatTimer();
@@ -108,9 +109,10 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // 1. BOSS MODE LOGIC
+    // 1. BOSS MODE LOGIC (Hanya dipicu jika pencipta mesej adalah OWNER)
     if (message.author.id === OWNER_ID && message.channel.name === CHAT_CHANNEL_NAME) {
-        if (message.content.toLowerCase().includes("jangan berisik") || message.content.toLowerCase().includes("quiet") || message.content.toLowerCase().includes("shut up") || message.content.toLowerCase().includes("diam")) {
+        const contentLower = message.content.toLowerCase();
+        if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("shut up") || contentLower.includes("diam")) {
             await message.reply("🤐 *Stands perfectly straight, goes completely silent, and bows respectfully*... Yes, Boss! My apologies, I will not make a sound without your orders. 🫡");
             return;
         }
@@ -118,7 +120,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // 2. PUBLIC MODE LOGIC
+    // 2. PUBLIC MODE LOGIC (Untuk ahli-ahli biasa)
     if (message.channel.name === CHAT_CHANNEL_NAME) {
         message.channel.sendTyping();
         const responPuaka = dapatkanResponToxic(message.content);
@@ -128,3 +130,4 @@ client.on('messageCreate', async (message) => {
 
 // 🔒 Menggunakan sistem rahsia Environment Variable (ANTI-HACK)
 client.login(process.env.DISCORD_TOKEN);
+            
