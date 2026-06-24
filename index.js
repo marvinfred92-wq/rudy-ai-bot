@@ -15,7 +15,7 @@ const client = new Client({
 });
 
 // ==========================================
-// ⚠️ CONFIGURATION (IDs MAINTAINED)
+// ⚙️ CONFIGURATION (IDs LOCKED)
 // ==========================================
 const OWNER_ID = '1380807302524829697'; 
 const CHAT_CHANNEL_NAME = 'chat-with-lrs-rudy-ai'; 
@@ -27,7 +27,7 @@ const CHANNELS_TO_PING = [
 
 let deadChatTimer = null;
 
-// 🎮 ENGLISH ROBLOX STUDIO & GAME TOPICS (TOXIC RUDY STYLE)
+// 🎮 ENGLISH ROBLOX STUDIO & GAME TOPICS
 const topikRoblox = [
     "Hey @dead chat, wake the hell up! Instead of sitting there doing absolutely nothing, how about I teach you guys how to script a **Leaderboard** in Roblox Studio? Anyone actually interested, or are you all too lazy?",
     "Yo @dead chat! This server literally feels like a graveyard. Let's learn how to make a **Part Teleportation** using Lua script in Roblox Studio. Does anyone here even have the brain cells for this?",
@@ -76,7 +76,7 @@ function startDeadChatTimer() {
                 if (channel) {
                     const isiTopik = topikRoblox[Math.floor(Math.random() * topikRoblox.length)];
                     await channel.send({
-                        content: isiTopic,
+                        content: isiTopik, //  DAH SIAP DIBETULKAN KEPADA 'isiTopik'
                         allowedMentions: { parse: ['everyone', 'roles', 'users'] }
                     });
                 }
@@ -98,7 +98,7 @@ client.on('messageCreate', async (message) => {
 
     startDeadChatTimer();
 
-    // ⛔ GLOBAL CHAT RESTRICTION (Forbids ordinary users from tagging bot in global)
+    // ⛔ GLOBAL CHAT RESTRICTION
     if (message.mentions.has(client.user) && message.channel.name !== CHAT_CHANNEL_NAME) {
         if (message.author.id === OWNER_ID) {
             await message.reply("🫡 **Always ready to serve you anywhere, Boss!**");
@@ -108,7 +108,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // 1. BOSS MODE LOGIC (Polite, loyal, and stands straight)
+    // 1. BOSS MODE LOGIC
     if (message.author.id === OWNER_ID && message.channel.name === CHAT_CHANNEL_NAME) {
         if (message.content.toLowerCase().includes("jangan berisik") || message.content.toLowerCase().includes("quiet") || message.content.toLowerCase().includes("shut up") || message.content.toLowerCase().includes("diam")) {
             await message.reply("🤐 *Stands perfectly straight, goes completely silent, and bows respectfully*... Yes, Boss! My apologies, I will not make a sound without your orders. 🫡");
@@ -118,7 +118,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // 2. PUBLIC MODE LOGIC (Pure toxic Rudy AI)
+    // 2. PUBLIC MODE LOGIC
     if (message.channel.name === CHAT_CHANNEL_NAME) {
         message.channel.sendTyping();
         const responPuaka = dapatkanResponToxic(message.content);
@@ -126,5 +126,5 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-// ⚠️ PUT YOUR BOT TOKEN HERE
-client.login('MTUxOTIwNTI3MTY2OTQ0NDY1OA.GmuVtE.9L0GSLqAvoETeiCWgutjqPOEaHaoYBTD1QC0-I');
+// 🔒 Menggunakan sistem rahsia Environment Variable (ANTI-HACK)
+client.login(process.env.DISCORD_TOKEN);
