@@ -1,18 +1,39 @@
-const { Client, GatewayIntentBits } = require('discord.js');
-const express = require('express');
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-app.get('/', (req, res) => res.send('AI Rudy-Mega V3 is Running!'));
-app.listen(PORT, () => console.log(`Web server active`));
+    startDeadChatTimer();
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
+    // 1. GLOBAL CHAT RESTRICTION (Keutamaan tertinggi)
+    if (message.mentions.has(client.user) && message.channel.name !== CHAT_CHANNEL_NAME) {
+        if (message.author.id === OWNER_ID) {
+            await message.reply("🫡 **Always ready to serve you anywhere, Boss!**");
+        } else {
+            await message.reply("Stop annoying me here! 🤬 Go to the `#chat-with-lrs-rudy-ai` channel!");
+        }
+        return; // Kunci: Berhenti di sini jika sudah balas global
+    }
+
+    // 2. BOSS MODE & PUBLIC MODE (Hanya dalam channel khas)
+    if (message.channel.name === CHAT_CHANNEL_NAME) {
+        
+        // LOGIK BOSS
+        if (message.author.id === OWNER_ID) {
+            const contentLower = message.content.toLowerCase();
+            if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("diam")) {
+                await message.reply("🤐 *Stands perfectly straight, goes completely silent*... Yes, Boss! 🫡");
+            } else {
+                await message.reply(`🫡 **At your service, Boss!** How can I assist my big boss today?`);
+            }
+            return; // Kunci: Jika sudah balas sebagai Boss, jangan jalankan Public Mode
+        }
+
+        // LOGIK PUBLIC (Hanya jalan kalau bukan Boss)
+        message.channel.sendTyping();
+        const responPuaka = dapatkanResponToxic(message.content);
+        await message.reply(responPuaka);
+    }
 });
+
 
 // ==========================================
 // ⚙️ CONFIGURATION (IDs LOCKED)
