@@ -1,61 +1,18 @@
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
+const { Client, GatewayIntentBits } = require('discord.js');
+const express = require('express');
 
-    startDeadChatTimer();
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('AI Rudy-Mega V3 is Running!'));
+app.listen(PORT, () => console.log(`Web server active`));
 
-    // ⛔ GLOBAL CHAT RESTRICTION
-    if (message.mentions.has(client.user) && message.channel.name !== CHAT_CHANNEL_NAME) {
-        if (message.author.id === OWNER_ID) {
-            await message.reply("🫡 **Always ready to serve you, Boss!**");
-        } else {
-            await message.reply("Stop annoying me here! 🤬 Go to the `#chat-with-lrs-rudy-ai` channel!");
-        }
-        return;
-    }
-
-    // 1. BOSS MODE LOGIC (Hanya respon jika OWNER MENTION bot)
-    if (message.channel.name === CHAT_CHANNEL_NAME && message.mentions.has(client.user)) {
-        if (message.author.id === OWNER_ID) {
-            const contentLower = message.content.toLowerCase();
-            if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("diam")) {
-                await message.reply("🤐 *Stands perfectly straight, goes completely silent*... Yes, Boss! 🫡");
-            } else {
-                await message.reply(`🫡 **At your service, Boss!** How can I assist my big boss today?`);
-            }
-            return;
-        }
-    }
-
-    // 2. PUBLIC MODE LOGIC (Untuk ahli biasa, TIDAK perlu mention)
-    if (message.channel.name === CHAT_CHANNEL_NAME && message.author.id !== OWNER_ID) {
-        message.channel.sendTyping();
-        const responPuaka = dapatkanResponToxic(message.content);
-        await message.reply(responPuaka);
-    }
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
 });
-
-
-    // 2. BOSS MODE & PUBLIC MODE (Hanya dalam channel khas)
-    if (message.channel.name === CHAT_CHANNEL_NAME) {
-        
-        // LOGIK BOSS
-        if (message.author.id === OWNER_ID) {
-            const contentLower = message.content.toLowerCase();
-            if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("diam")) {
-                await message.reply("🤐 *Stands perfectly straight, goes completely silent*... Yes, Boss! 🫡");
-            } else {
-                await message.reply(`🫡 **At your service, Boss!** How can I assist my big boss today?`);
-            }
-            return; // Kunci: Jika sudah balas sebagai Boss, jangan jalankan Public Mode
-        }
-
-        // LOGIK PUBLIC (Hanya jalan kalau bukan Boss)
-        message.channel.sendTyping();
-        const responPuaka = dapatkanResponToxic(message.content);
-        await message.reply(responPuaka);
-    }
-});
-
 
 // ==========================================
 // ⚙️ CONFIGURATION (IDs LOCKED)
@@ -136,35 +93,39 @@ client.once('ready', () => {
     startDeadChatTimer();
 });
 
+// 🔥 HANYA SATU BLOK messageCreate SAHAJA (BERKUNCI & BERSIH)
 client.on('messageCreate', async (message) => {
-    // 🛑 SEKATAN UTAMA: Jika penulis mesej adalah bot, abai terus supaya tidak melayan diri sendiri!
     if (message.author.bot) return;
 
     startDeadChatTimer();
 
-    // ⛔ GLOBAL CHAT RESTRICTION
+    // ⛔ SEKATAN GLOBAL CHAT
     if (message.mentions.has(client.user) && message.channel.name !== CHAT_CHANNEL_NAME) {
         if (message.author.id === OWNER_ID) {
             await message.reply("🫡 **Always ready to serve you anywhere, Boss!**");
-            return;
+        } else {
+            await message.reply("Stop annoying me here! 🤬 Go to the `#chat-with-lrs-rudy-ai` channel if you desperately want to talk to me. This channel is for global chat only!");
         }
-        await message.reply("Stop annoying me here! 🤬 Go to the `#chat-with-lrs-rudy-ai` channel if you desperately want to talk to me. This channel is for global chat only!");
         return;
     }
 
-    // 1. BOSS MODE LOGIC (Hanya dipicu jika pencipta mesej adalah OWNER)
-    if (message.author.id === OWNER_ID && message.channel.name === CHAT_CHANNEL_NAME) {
-        const contentLower = message.content.toLowerCase();
-        if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("shut up") || contentLower.includes("diam")) {
-            await message.reply("🤐 *Stands perfectly straight, goes completely silent, and bows respectfully*... Yes, Boss! My apologies, I will not make a sound without your orders. 🫡");
-            return;
-        }
-        await message.reply(`🫡 **At your service, Boss!** Your word is absolute law. Whatever you say is 100% correct. How can I assist my big boss today?`);
-        return;
-    }
-
-    // 2. PUBLIC MODE LOGIC (Untuk ahli-ahli biasa)
+    // 💬 LOGIK DALAM CHANNEL KHAS (`chat-with-lrs-rudy-ai`)
     if (message.channel.name === CHAT_CHANNEL_NAME) {
+        
+        // 1. MOD BOSS (Hanya balas kalau Boss yang MENTION/TAG bot)
+        if (message.author.id === OWNER_ID) {
+            if (message.mentions.has(client.user)) {
+                const contentLower = message.content.toLowerCase();
+                if (contentLower.includes("jangan berisik") || contentLower.includes("quiet") || contentLower.includes("shut up") || contentLower.includes("diam")) {
+                    await message.reply("🤐 *Stands perfectly straight, goes completely silent, and bows respectfully*... Yes, Boss! My apologies, I will not make a sound without your orders. 🫡");
+                } else {
+                    await message.reply(`🫡 **At your service, Boss!** Your word is absolute law. Whatever you say is 100% correct. How can I assist my big boss today?`);
+                }
+            }
+            return; // Kunci: Selesai respon Boss, abaikan kod public di bawah!
+        }
+
+        // 2. MOD PUBLIC (Untuk orang biasa - dia sembur secara toxic tanpa perlu mention)
         message.channel.sendTyping();
         const responPuaka = dapatkanResponToxic(message.content);
         await message.reply(responPuaka);
@@ -173,4 +134,3 @@ client.on('messageCreate', async (message) => {
 
 // 🔒 Menggunakan sistem rahsia Environment Variable (ANTI-HACK)
 client.login(process.env.DISCORD_TOKEN);
-            
